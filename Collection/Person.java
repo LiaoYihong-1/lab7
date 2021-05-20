@@ -20,6 +20,7 @@ public class Person implements Comparable<Person>, Serializable {
     private EyeColor eyeColor; //Поле не может быть null
     private HairColor hairColor; //Поле не может быть null
     private Location location; //Поле не может быть null
+    private String host;
     public static int idcode = 0;
 
     /**
@@ -43,6 +44,7 @@ public class Person implements Comparable<Person>, Serializable {
         this.id = setId();
         this.creationDate = location.getCreationdate();
         this.birthday = ZonedDateTime.now();
+        this.host = null;
     }
 
     /**
@@ -54,6 +56,11 @@ public class Person implements Comparable<Person>, Serializable {
         idcode = idcode + 1;
         return idcode;
     }
+
+    public void setHost(String host){
+        this.host = host;
+    }
+
 
     public void resetid(Integer id){
         this.id = id;
@@ -190,6 +197,10 @@ public class Person implements Comparable<Person>, Serializable {
         return id;
     }
 
+    public String getHost() {
+        return host;
+    }
+
     /**
      * return the height of a perosn
      *
@@ -236,7 +247,7 @@ public class Person implements Comparable<Person>, Serializable {
      */
     @Override
     public String toString() {
-        return this.id + "," + this.name + "," + this.hairColor + "," + this.eyeColor + "," + this.height + "," + this.location.getName() + "," + this.location.getX() + "," + this.coordinates.getY() + "," + this.location.getZ() + "," + this.creationDate + "," + this.birthday + "\n";
+        return this.id + "," + this.name + "," + this.hairColor + "," + this.eyeColor + "," + this.height + "," + this.location.getName() + "," + this.location.getX() + "," + this.coordinates.getY() + "," + this.location.getZ() + "," + this.creationDate + "," + this.birthday + ","+this.host+"\n";
     }
 
     /**

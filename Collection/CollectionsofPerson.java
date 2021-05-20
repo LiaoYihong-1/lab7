@@ -8,7 +8,7 @@ import java.util.LinkedHashSet;
  */
 public class CollectionsofPerson {
     private static LocalDate InitializationTime;
-    private static LinkedHashSet<Person> people;
+    private LinkedHashSet<Person> people;
     public static boolean Initialization = false;
 
     /**
@@ -45,8 +45,17 @@ public class CollectionsofPerson {
         return InitializationTime;
     }
 
-    public static void setPeople(LinkedHashSet<Person> newone) {
-        people = newone;
+    public synchronized void add(Person person){
+        this.people.add(person);
+    }
+
+    public synchronized void setPeople(LinkedHashSet<Person> newone) {
+        this.people = newone;
+    }
+
+    public synchronized Person remove(Person P){
+        this.people.remove(P);
+        return P;
     }
 
 }
