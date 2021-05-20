@@ -224,7 +224,7 @@ public class ServerReadAndDealThread extends Thread{
                         manager.setOut("2.Your account has no enough privilege\n",true);
                         manager.setOut("Just try again or use another account\n",true);
                     }
-                    Response response = new Response(Person.getidcode(),collection.getPeople(),manager.getOut());
+                    this.response = new Response(Person.getidcode(),collection.getPeople(),manager.getOut());
                     response.setException(true);
                     /*
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
