@@ -179,6 +179,7 @@ public class ServerReadAndDealThread extends Thread{
                     try (Connection connection = DriverManager.getConnection(sq, information.getUser(), information.getPassword())) {
                         try (Statement ps = connection.createStatement()){
                             try(ResultSet rs = ps.executeQuery("SELECT id,name,haircolor,eyecolor,height,location,x,y,z,creationdate,birthday,username FROM people")){
+                                collection.clear();
                                 while(rs.next()){
                                     int id = rs.getInt("id");
                                     String name = rs.getString("name");
