@@ -1,7 +1,8 @@
 package Command;
 
+import Collection.CollectionsofPerson;
 import Collection.NullException;
-import Lab.CommandPackage;
+import Lab.MainRequest;
 
 public class Average extends AbstractCommand {
     public Average() {
@@ -9,7 +10,7 @@ public class Average extends AbstractCommand {
         this.help = "out put the average of the heights of all collections(People)";
     }
 
-    public void execute(CommandManager commandManager, CommandPackage commandPackage) throws ParaInapproException, NullException {
-        commandManager.executeAverage();
+    public void execute(CommandManager commandManager, MainRequest request, CollectionsofPerson collection) throws ParaInapproException, NullException {
+        commandManager.executeAverage(collection);
     }
 }

@@ -1,6 +1,8 @@
 package Command;
 
+import Collection.CollectionsofPerson;
 import Lab.CommandPackage;
+import Lab.MainRequest;
 
 import java.util.ArrayList;
 
@@ -22,7 +24,7 @@ public class History extends AbstractCommand {
      * @param commandManager
      * @throws ParaInapproException
      */
-    public void execute(CommandManager commandManager, CommandPackage commandPackage) throws ParaInapproException {
+    public void execute(CommandManager commandManager, MainRequest request, CollectionsofPerson collection) throws ParaInapproException {
         commandManager.executeHistory();
     }
 

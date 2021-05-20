@@ -1,6 +1,8 @@
 package Command;
 
+import Collection.CollectionsofPerson;
 import Lab.CommandPackage;
+import Lab.MainRequest;
 
 import java.io.Serializable;
 
@@ -20,7 +22,7 @@ public class Help extends AbstractCommand implements Serializable {
      * @param cm CommandManager
      * @throws ParaInapproException thrown by executeHelp
      */
-    public void execute(CommandManager cm, CommandPackage commandPackage) throws ParaInapproException {
+    public void execute(CommandManager cm, MainRequest request, CollectionsofPerson collection) throws ParaInapproException {
         cm.executeHelp();
     }
 }

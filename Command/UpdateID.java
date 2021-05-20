@@ -1,6 +1,9 @@
 package Command;
 
-import Lab.CommandPackage;
+import Collection.CollectionsofPerson;
+import Lab.MainRequest;
+
+import java.sql.SQLException;
 
 /***
  * Command UpdateID
@@ -13,13 +16,12 @@ public class UpdateID extends AbstractCommand {
 
     /**
      * reset elements with specified id
-     * {@link CommandManager#executeUpdateID(String)}
      *
      * @param commandManager CommandManager
      * @throws ParaInapproException  created when parameter incorrect
      * @throws NumberFormatException thrown by executeUpdateID
      */
-    public void execute(CommandManager commandManager, CommandPackage commandPackage) throws ParaInapproException, NumberFormatException {
-        commandManager.executeUpdateID(commandPackage.getArg()[0], commandPackage.getPerson());
+    public void execute(CommandManager commandManager, MainRequest request, CollectionsofPerson collection) throws ParaInapproException, NumberFormatException, SQLException {
+        commandManager.executeUpdateID(request.getCommandPackage().getArg()[0],request.getCommandPackage().getPerson(),collection, request.getCilentInformation(),request);
     }
 }

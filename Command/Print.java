@@ -1,7 +1,9 @@
 package Command;
 
+import Collection.CollectionsofPerson;
 import Collection.NullException;
 import Lab.CommandPackage;
+import Lab.MainRequest;
 
 /**
  * command Print
@@ -15,13 +17,11 @@ public class Print extends AbstractCommand {
 
     /**
      * print all the location of collections
-     * {@link CommandManager#executePrint()}
-     *
      * @param commandManager empty
      * @throws ParaInapproException by executePrint()
      * @throws NullException        by executePrint()
      */
-    public void execute(CommandManager commandManager, CommandPackage commandPackage) throws ParaInapproException, NullException {
-        commandManager.executePrint();
+    public void execute(CommandManager commandManager, MainRequest request, CollectionsofPerson collection) throws ParaInapproException, NullException {
+        commandManager.executePrint(collection);
     }
 }

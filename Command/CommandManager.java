@@ -2,8 +2,12 @@ package Command;
 
 import CSV.CSVWriter;
 import Collection.*;
+import Lab.ClientInformation;
+import Lab.MainRequest;
+
 import java.sql.*;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -81,34 +85,17 @@ public class CommandManager {
     }
 
     /**
-     * If user set a person smaller than him, add the new person
-     *
-     * @param p
-     */
-    public void executeAddifmin(Person p, CommandManager commandManager) {
-        LinkedHashSet<Person> judge = new LinkedHashSet<>();
-        new CollectionsofPerson().getPeople().stream().filter(P -> p.compareTo(P) > 0).forEach(judge::add);
-        if (judge.size() == 0) {
-            new CollectionsofPerson().getPeople().add(p);
-            commandManager.setOut("You add\n" + p.toString() + "to collection\n", false);
-        } else {
-            commandManager.setOut("Failed to add\n", false);
-            Person.balaceicode();
-        }
-    }
-
-    /**
      * print the average of height
      */
-    public void executeAverage() {
+    public void executeAverage(CollectionsofPerson collection) {
         Integer result;
-        Iterator<Person> iterator = new CollectionsofPerson().getPeople().iterator();
+        Iterator<Person> iterator = collection.getPeople().iterator();
         if (iterator.hasNext()) {
             Integer Total = 0;
             while (iterator.hasNext()) {
                 Total = Total + iterator.next().getHeight();
             }
-            result = Total / (new CollectionsofPerson().getPeople().size());
+            result = Total / (collection.getPeople().size());
             setOut("the average of heights is " + result + "\n", false);
             System.out.print(out);
         } else {
@@ -120,9 +107,11 @@ public class CommandManager {
     /**
      * clear all elements in collections
      */
-    public void executeClear() throws NullException {
+    public void executeClear(CollectionsofPerson collectionsofPerson) throws NullException {
         setOut("Now collection is cleared anyway\n", false);
-        new CollectionsofPerson().getPeople().clear();
+        LinkedHashSet<Person> set = collectionsofPerson.getPeople();
+        set.clear();
+        collectionsofPerson.setPeople(set);
     }
 
     /**
@@ -135,13 +124,13 @@ public class CommandManager {
     /**
      * print the information of collection(type,amount of elements,when it is created)
      */
-    public void executeInfo() {
-        if (!CollectionsofPerson.Initialization) {
-            throw new NotInitializationException("collections was initialized");
+    public void executeInfo(CollectionsofPerson collection) {
+        if (!collection.Initialization) {
+            throw new NotInitializationException("collections wasn't initialized");
         } else {
             System.out.print("the date of initialization is " + new CollectionsofPerson().getInitializationTime() + "\n");
         }
-        setOut("the amount of elements is " + new CollectionsofPerson().getPeople().size() + "\n" + "the type of collection is " + new CollectionsofPerson().getPeople().getClass() + "\n", false);
+        setOut("the amount of elements is " + collection.getPeople().size() + "\n" + "the type of collection is " + collection.getPeople().getClass() + "\n", false);
         System.out.print(out);
     }
 
@@ -151,13 +140,13 @@ public class CommandManager {
      *
      * @throws NullException
      */
-    public void executePrint() throws NullException {
-        if (new CollectionsofPerson().getPeople().size() == 0) {
+    public void executePrint(CollectionsofPerson collection) throws NullException {
+        if (collection.getPeople().size() == 0) {
             setOut("Collection is still empty\n", false);
             System.out.print(out);
         } else {
             setOut("Informations of locations:\n", false);
-            new CollectionsofPerson().getPeople().stream().forEach(P -> setOut(P.getId() + ":" + P.getLocation().toString(), true));
+            collection.getPeople().stream().forEach(P -> setOut(P.getId() + ":" + P.getLocation().toString(), true));
         }
     }
 
@@ -175,8 +164,8 @@ public class CommandManager {
         return linkedHashSet;
     }
 
-    public void executeRemoveById(Integer id) {
-        Person p = findByid(id);
+    public void executeRemoveById(Integer id, CollectionsofPerson collection) {
+        Person p = findByid(id,collection);
         if (findid == false) {
             throw new ParaInapproException("no such a person with this id\n");
         } else {
@@ -191,10 +180,10 @@ public class CommandManager {
      * @param id
      * @return Person
      */
-    public Person findByid(Integer id) {
+    public Person findByid(Integer id,CollectionsofPerson collection) {
         Person p = null;
         Person m;
-        Iterator<Person> iterator = new CollectionsofPerson().getPeople().iterator();
+        Iterator<Person> iterator =collection.getPeople().iterator();
         out:
         while (iterator.hasNext()) {
             if ((m = iterator.next()).getId().equals(id)) {
@@ -212,57 +201,22 @@ public class CommandManager {
     }
 
     /**
-     * remove person with specified eye color
-     * {@link CommandManager#findbyEye(String)}
-     *
-     * @param eye
-     */
-    public void executeRemoveEyeColor(String eye) {
-        for (Person p : findbyEye(eye)) {
-            new CollectionsofPerson().getPeople().remove(p);
-        }
-    }
-
-    /**
      * find person with Specified eye color
      *
      * @param eye
      * @return
      */
-    public LinkedHashSet<Person> findbyEye(String eye) {
+    public LinkedHashSet<Person> findbyEye(String eye,CollectionsofPerson collection) throws IllegalArgumentException{
         LinkedHashSet<Person> linkedHashSet = new LinkedHashSet<>();
         Person A;
         EyeColor eyeColor = EyeColor.valueOf(eye.toUpperCase());
-        Iterator<Person> iterator = new CollectionsofPerson().getPeople().iterator();
+        Iterator<Person> iterator = collection.getPeople().iterator();
         while (iterator.hasNext()) {
-            if ((A = iterator.next()).getEyeColor() == eyeColor) {
+            if ((A = iterator.next()).getEyeColor()==eyeColor) {
                 linkedHashSet.add(A);
             }
         }
         return linkedHashSet;
-    }
-
-    /**
-     * Remove all the people,whose if bigger than specified
-     * {@link CommandManager#findByid(Integer)}
-     *
-     * @param in
-     * @throws NullException
-     */
-    public void executeRemoveGreater(Integer in) throws NullException {
-        LinkedHashSet<Person> newone = new LinkedHashSet<>();
-        Person B = findByid(Integer.valueOf(in));
-        if (B == null) {
-            setOut("No element is available\n", false);
-            throw new NullException("No element is available\n");
-        } else {
-            setOut("You remove:\n", false);
-            new CollectionsofPerson().getPeople().stream().filter(P -> P.getId() <= in).forEach(newone::add);
-            new CollectionsofPerson().getPeople().stream().filter(P -> P.getId() > in).forEach(P -> {
-                setOut(P.toString(), true);
-            });
-            CollectionsofPerson.setPeople(newone);
-        }
     }
 
     /**
@@ -271,9 +225,9 @@ public class CommandManager {
      *
      * @throws IOException
      */
-    public void executeSave(String path) throws IOException,ClassNotFoundException,SQLException{
-        LinkedHashSet<Person> linkedHashSet = new CollectionsofPerson().getPeople();
-        new CSVWriter().writetofile(linkedHashSet, path);
+    public void executeSave(ClientInformation path) throws IOException,ClassNotFoundException,SQLException{
+        /*LinkedHashSet<Person> linkedHashSet = new CollectionsofPerson().getPeople();
+        new CSVWriter().writetofile(linkedHashSet, path);*/
         Class.forName("org.postgresql.Driver");
         HashSet<Person> people = new CollectionsofPerson().getPeople();
         try(Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5433/studs","postgres","123456")){
@@ -289,7 +243,7 @@ public class CommandManager {
                     ps.setObject(8,P.getLocation().getZ());
                     ps.setObject(9,P.getLocation().getCreationdate().toString());
                     ps.setObject(10,P.getBirthday().toString());
-                    ps.setObject(11,"un");
+                    ps.setObject(11,P.getHost());
                     int n = ps.executeUpdate();
                     System.out.print(n);
                 }
@@ -300,70 +254,63 @@ public class CommandManager {
     /**
      * print all the elements
      */
-    public void executeShow() {
+    public void executeShow(CollectionsofPerson collection) {
         String Show = "";
         setOut("Informations of people:\n" + "id,name,haircolor,eyecolor,height,location,x,y,z,creationdate,birthday\n", false);
-        if (new CollectionsofPerson().getPeople().size() == 0) {
+        if (collection.getPeople().size() == 0) {
             setOut("Collection of people is still empty\n", false);
-            System.out.print("collection of people is still empty\n");
         } else {
-            new CollectionsofPerson().getPeople().stream().forEach(P -> setOut(P.toString(), true));
+            collection.getPeople().stream().forEach(P -> setOut(P.toString(), true));
         }
     }
 
-    /**
-     * reset element with specified id.
-     * {@link CommandManager#findByid(Integer)}
-     * @throws ParaInapproException
-     */
-    public void executeUpdateID(String in) throws ParaInapproException {
+    public void executeUpdateID(String in, Person P, CollectionsofPerson collection, ClientInformation clientInformation, MainRequest request) throws ParaInapproException,SQLException{
         Integer id = Integer.valueOf(in);
         Person p;
         String before = "";
         String after = "";
-        Iterator<Person> iterator = new CollectionsofPerson().getPeople().iterator();
-        out:
-        while (iterator.hasNext()) {
-            if (findByid(id) == null) {
-                setOut("no such a person with this id\n", false);
-                throw new ParaInapproException("no such a person with this id\n");
-            }
-            if ((p = iterator.next()).getId() == id) {
-                new CollectionsofPerson().getPeople().remove(p);
-                before = p.toString();
-                Person insert = Person.peoplecreate();
-                insert.changeId(id);
-                Person.balaceicode();
-                new CollectionsofPerson().getPeople().add(insert);
-                after = insert.toString();
-                break out;
-            }
-        }
-        setOut("You replace the\n" + before + "to\n" + after, false);
-    }
-
-    public void executeUpdateID(String in, Person P) throws ParaInapproException {
-        Integer id = Integer.valueOf(in);
-        Person p;
-        String before = "";
-        String after = "";
-        Iterator<Person> iterator = new CollectionsofPerson().getPeople().iterator();
-        out:
-        while (iterator.hasNext()) {
-            if (findByid(id) == null) {
+        boolean match = false;
+        Iterator<Person> iterator = collection.getPeople().iterator();
+        out :while (iterator.hasNext()) {
+            if (findByid(id,collection) == null) {
                 throw new ParaInapproException("no such a person with this id\n");
             }
             if ((p = iterator.next()).getId().equals(id)) {
-                new CollectionsofPerson().getPeople().remove(p);
-                before = p.toString();
-                Person insert = P;
-                insert.changeId(id);
-                new CollectionsofPerson().getPeople().add(insert);
-                after = insert.toString();
+                if(p.getHost().equals(P.getHost())) {
+                    match = true;
+                    String sq = "jdbc:postgresql://" + clientInformation.getIp() + ":" + clientInformation.getPort() + "/" + clientInformation.getDatabase();
+                    try(Connection connection = DriverManager.getConnection(sq, clientInformation.getUser(), clientInformation.getPassword())){
+                        try(PreparedStatement ps = connection.prepareStatement("UPDATE people SET name=?,haircolor=?,eyecolor=?,height=?,location=?,x=?,y=?,z=?,creationdate=?,birthday=?,username=?,password=? WHERE id=?")){
+                            ps.setObject(1,P.getName());
+                            ps.setObject(2,P.getHairColor().toString());
+                            ps.setObject(3,P.getEyeColor().toString());
+                            ps.setObject(4,P.getHeight());
+                            ps.setObject(5,P.getLocation().getName());
+                            ps.setObject(6,P.getLocation().getX());
+                            ps.setObject(7,P.getLocation().getY());
+                            ps.setObject(8,P.getLocation().getZ());
+                            ps.setObject(9,P.getLocation().getCreationdate().toString());
+                            ps.setObject(10,P.getBirthday().toString());
+                            ps.setObject(11,P.getHost());
+                            ps.setObject(12,request.getCilentInformation().getHash());
+                            ps.setObject(13,p.getId());
+                            ps.executeUpdate();
+                        }
+                    }
+                    collection.remove(p);
+                    before = p.toString();
+                    Person insert = P;
+                    insert.changeId(id);
+                    collection.add(insert);
+                    after = insert.toString();
+                    setOut("You replace the\n" + before + "to\n" + after, false);
+                }
                 break out;
             }
         }
-        setOut("You replace the\n" + before + "to\n" + after, false);
+        if(!match){
+            setOut("You can't update a person that doesn't belong your account!\n",false);
+        }
     }
 
 

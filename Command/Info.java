@@ -1,6 +1,8 @@
 package Command;
 
+import Collection.CollectionsofPerson;
 import Lab.CommandPackage;
+import Lab.MainRequest;
 
 /**
  * command Info
@@ -13,12 +15,11 @@ public class Info extends AbstractCommand {
 
     /**
      * print all the information about collection.Don't accept any parameter
-     * {@link CommandManager#executeInfo()}
      *
      * @param commandManager CommandManager
      * @throws ParaInapproException by executeInfo
      */
-    public void execute(CommandManager commandManager, CommandPackage commandPackage) throws ParaInapproException {
-        commandManager.executeInfo();
+    public void execute(CommandManager commandManager, MainRequest request, CollectionsofPerson collection) throws ParaInapproException {
+        commandManager.executeInfo(collection);
     }
 }

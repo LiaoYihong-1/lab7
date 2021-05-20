@@ -1,6 +1,8 @@
 package Command;
 
+import Collection.CollectionsofPerson;
 import Lab.CommandPackage;
+import Lab.MainRequest;
 
 /**
  * Command Exit
@@ -18,7 +20,7 @@ public class Exit extends AbstractCommand {
      * @param commandManager CommandManager
      * @throws ParaInapproException by execueExit
      */
-    public void execute(CommandManager commandManager, CommandPackage commandPackage) throws ParaInapproException {
+    public void execute(CommandManager commandManager, MainRequest request, CollectionsofPerson collection) throws ParaInapproException {
         commandManager.executeExit();
     }
 }

@@ -1,6 +1,8 @@
 package Command;
 
+import Collection.CollectionsofPerson;
 import Lab.CommandPackage;
+import Lab.MainRequest;
 
 /**
  * command ExecuteScript
@@ -14,7 +16,7 @@ public class ExecuteScript extends AbstractCommand {
     /**
      * meaningless in lab6
      */
-    public void execute(CommandManager commandManager, CommandPackage commandPackage) {
-        commandManager.executeScript(commandPackage.getArg());
+    public void execute(CommandManager commandManager, MainRequest request, CollectionsofPerson collection) {
+        commandManager.executeScript(request.getCommandPackage().getArg());
     }
 }

@@ -1,7 +1,12 @@
 package Command;
 
+import Collection.CollectionsofPerson;
 import Collection.Person;
 import Lab.CommandPackage;
+import Lab.MainRequest;
+
+import java.sql.SQLException;
+import java.util.LinkedHashSet;
 
 /**
  * command Addifmin
@@ -14,12 +19,21 @@ public class Addifmin extends AbstractCommand {
 
     /**
      * add if hashcode of new element smaller than others
-     * {@link CommandManager#executeAddifmin(Person, CommandManager)}
      *
      * @param commandManager CommandManage
      * @throws ParaInapproException by executeAddifmin
      */
-    public void execute(CommandManager commandManager, CommandPackage commandPackage) throws ParaInapproException {
-        commandManager.executeAddifmin(commandPackage.getPerson(), commandManager);
+    public void execute(CommandManager commandManager, MainRequest request, CollectionsofPerson collection) throws ParaInapproException, SQLException {
+        Person p = request.getCommandPackage().getPerson();
+        LinkedHashSet<Person> judge = new LinkedHashSet<>();
+        collection.getPeople().stream().filter(P -> p.compareTo(P) > 0).forEach(judge::add);
+        if (judge.size() == 0) {
+            new Add().execute(commandManager,request,collection);
+            collection.add(p);
+            commandManager.setOut("You add\n" + p.toString() + "to collection\n", false);
+        } else {
+            commandManager.setOut("Failed to add\n", false);
+            Person.balaceicode();
+        }
     }
 }

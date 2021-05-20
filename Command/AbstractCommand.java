@@ -1,8 +1,10 @@
 package Command;
 
+import Collection.CollectionsofPerson;
 import Collection.NullException;
 import Collection.ValueTooSmallException;
 import Lab.CommandPackage;
+import Lab.MainRequest;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -40,5 +42,5 @@ public abstract class AbstractCommand implements Serializable {
      * @param commandPackage CommandPackage
      * @throws IOException,ParaInapproException,NullException,ValueTooSmallException,ValueTooSmallException depends on commands
      */
-    abstract public void execute(CommandManager commandManager, CommandPackage commandPackage) throws IOException, ParaInapproException, NullException, ValueTooSmallException, ClassNotFoundException, SQLException;
+    abstract public void execute(CommandManager commandManager, MainRequest request, CollectionsofPerson collection) throws IOException, ParaInapproException, NullException, ValueTooSmallException, ClassNotFoundException, SQLException;
 }
