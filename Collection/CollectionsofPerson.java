@@ -57,5 +57,9 @@ public class CollectionsofPerson {
         this.people.remove(P);
         return P;
     }
+    
+    public synchronized void clear(){
+        this.people.clear();
+    }
 
 }
