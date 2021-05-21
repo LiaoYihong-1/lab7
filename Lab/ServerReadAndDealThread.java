@@ -172,6 +172,9 @@ public class ServerReadAndDealThread extends Thread{
                                 ps.executeUpdate();
                                 try (PreparedStatement ps1 = connection.prepareStatement("GRANT ALL ON " + "people" + " TO " + information.getUser())) {
                                     ps1.executeUpdate();
+                                    try(PreparedStatement ps2 = connection.prepareStatement("GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO " + information.getUser())){
+                                        ps2.executeUpdate();
+                                    }
                                 }
                             }
                         }
