@@ -9,11 +9,13 @@ import java.net.DatagramSocket;
 public class ServerSendingThread extends Thread{
     private Response response;
     private DatagramSocket socket;
-    DatagramPacket packet;
-    ServerSendingThread(Response response, DatagramSocket socket, DatagramPacket packet){
+    private DatagramPacket packet;
+    private boolean exit = false;
+    ServerSendingThread(Response response, DatagramSocket socket, DatagramPacket packet,boolean exit){
         this.response = response;
         this.socket=socket;
         this.packet=packet;
+        this.exit = exit;
     }
 
     @Override
@@ -26,6 +28,9 @@ public class ServerSendingThread extends Thread{
             DatagramPacket send = new DatagramPacket(data, data.length, packet.getSocketAddress());
             outputStream.close();
             socket.send(send);
+            if(exit){
+                System.exit(2);
+            }
         }catch (IOException I){
             I.printStackTrace();
         }
