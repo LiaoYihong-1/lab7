@@ -24,10 +24,8 @@ public class Server {
             ports = thread.getPorts();
             Response response = thread.getResponse();
             DatagramPacket packet = thread.getPacket();
-            pool.execute(new ServerSendingThread(response,socket,packet));
-            if(thread.isExit()){
-                System.exit(2);
-            }
+            ServerSendingThread send = new ServerSendingThread(response,socket,packet,thread.isExit());
+            pool.execute(send);
             //send.start();
         }
     }
