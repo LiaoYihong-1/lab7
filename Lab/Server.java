@@ -13,7 +13,7 @@ public class Server {
         int port = Integer.parseInt(args[0]);
         DatagramSocket socket = new DatagramSocket(port);
         LinkedHashSet<Integer> ports = new LinkedHashSet<>();
-        ExecutorService pool = Executors.newFixedThreadPool(3);
+        ExecutorService pool = Executors.newCachedThreadPool();
 
 
         while(true){

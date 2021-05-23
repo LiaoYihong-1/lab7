@@ -1,5 +1,4 @@
 package Lab;
-
 import Collection.*;
 import Command.AbstractCommand;
 import Command.CommandManager;
@@ -87,15 +86,6 @@ public class ServerReadAndDealThread extends Thread{
                         this.exit = true;
 
                         this.response = new Response(Person.getidcode(), manager.getOut());
-                        /*
-                        ByteArrayOutputStream bao = new ByteArrayOutputStream();
-                        ObjectOutputStream bos = new ObjectOutputStream(bao);
-                        bos.writeObject(response);
-                        byte[] data = bao.toByteArray();//manager.getOut().getBytes();
-                        socket.send(new DatagramPacket(data, data.length, packet.getSocketAddress()));
-                        //manager.executeSave(clientInformation);
-                        bos.close();
-                        */
                         for(Integer ip: ports){
                             if(ip.equals(packet.getPort())){
                                 ports.remove(ip);
@@ -105,7 +95,7 @@ public class ServerReadAndDealThread extends Thread{
                     } else {
                         try {
                             command.execute(manager, request, collection);
-                        }catch(SQLException S){
+                        }catch(SQLException|NullException S){
                             System.out.print(S.getMessage());
                             manager.setOut(S.getMessage()+"\n",false);
                         }
@@ -114,18 +104,6 @@ public class ServerReadAndDealThread extends Thread{
                         }
                     }
                     this.response = new Response(Person.getidcode(),collection.getPeople() ,manager.getOut());
-                    /*
-                    ByteArrayOutputStream bao = new ByteArrayOutputStream();
-                    ObjectOutputStream bos = new ObjectOutputStream(bao);
-                    bos.writeObject(response);
-                    byte[] data = bao.toByteArray();//manager.getOut().getBytes();
-                    DatagramPacket send = new DatagramPacket(data, data.length, packet.getSocketAddress());
-                    socket.send(send);
-                    System.out.print(manager.getOut());
-                    System.out.print("\n");
-                    bos.close();
-                    */
-                    //for command executescript
                 } else if (!commandPackage.isSet()) {
                     StringBuilder S = new StringBuilder();
                     List<CommandPackage> list = commandPackage.getList();
@@ -145,17 +123,6 @@ public class ServerReadAndDealThread extends Thread{
                         manager.setOut(s.getMessage()+"\n",false);
                     }
                     this.response = new Response(Person.getidcode(), manager.getOut());
-                    /*
-                    ByteArrayOutputStream bao = new ByteArrayOutputStream();
-                    ObjectOutputStream bos = new ObjectOutputStream(bao);
-                    bos.writeObject(response);
-                    byte[] data = bao.toByteArray();//manager.getOut().getBytes();
-                    DatagramPacket send = new DatagramPacket(data, data.length, packet.getSocketAddress());
-                    socket.send(send);
-                    System.out.print(manager.getOut());
-                    System.out.print("\n");
-                    bos.close();
-                    */
                 }
             }else if(request.getCilentInformation()!=null){
                 //connection to database and read it
@@ -165,85 +132,116 @@ public class ServerReadAndDealThread extends Thread{
                     ports.add(newport);
                     information = request.getCilentInformation();
                     Class.forName("org.postgresql.Driver");
+                    //String sq = "jdbc:postgresql://" + "pg" + ":" + "5432" + "/" + "studs";
                     String sq = "jdbc:postgresql://" + information.getIp() + ":" + information.getPort() + "/" + information.getDatabase();
+
+                    //register
                     if(request.getCilentInformation().isCreate()) {
-                        try (Connection connection = DriverManager.getConnection(sq, "postgres", "123456")) {
-                            try (PreparedStatement ps = connection.prepareStatement("CREATE USER " + information.getUser() + " WITH PASSWORD " + "'" + information.getPassword()+ "'")) {
-                                ps.executeUpdate();
-                                try (PreparedStatement ps1 = connection.prepareStatement("GRANT ALL ON " + "people" + " TO " + information.getUser())) {
-                                    ps1.executeUpdate();
-                                    try(PreparedStatement ps2 = connection.prepareStatement("GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO " + information.getUser())){
-                                        ps2.executeUpdate();
+                        if(UserExist(information.getUser())){
+                            throw new SQLException("This username is existed\n");
+                        }else {
+                            AddUser(information.getUser(), information.getHash());
+                        }
+                    }
+
+                    //login
+                    if(!AccountExist(information.getUser(),information.getHash())){
+                        manager.setOut("Your username or password improper\n",false);
+                        this.response = new Response(Person.getidcode(), collection.getPeople(), manager.getOut());
+                        response.setException(true);
+                    }else {
+                        try (Connection connection = DriverManager.getConnection(sq, "s291007", "pgt813")) {
+                            try (Statement ps = connection.createStatement()) {
+                                try (ResultSet rs = ps.executeQuery("SELECT id,name,haircolor,eyecolor,height,location,x,y,z,creationdate,birthday,username FROM people ORDER BY id ASC")) {
+                                    collection.clear();
+                                    while (rs.next()) {
+                                        int id = rs.getInt("id");
+                                        String name = rs.getString("name");
+                                        String haircolor = rs.getString("haircolor");
+                                        String eyecolor = rs.getString("eyecolor");
+                                        int height = rs.getInt("height");
+                                        String location = rs.getString("location");
+                                        int x = rs.getInt("x");
+                                        int y = (int) rs.getDouble("y");
+                                        int z = rs.getInt("z");
+                                        String creationdate = rs.getString("creationdate");
+                                        String birthday = rs.getString("birthday");
+                                        String host = rs.getString("username");
+                                        Person p = new Person(new Location(new Coordinates(x, y), location, z), HairColor.valueOf(haircolor), EyeColor.valueOf(eyecolor), name, height);
+                                        p.setHost(host);
+                                        p.resetid(id);
+                                        p.setBirthday(ZonedDateTime.parse(birthday));
+                                        p.setCreationDate(LocalDate.parse(creationdate));
+                                        Person.setIdcode(id);
+                                        collection.add(p);
                                     }
                                 }
                             }
                         }
+                        manager.setOut("success\n", false);
+                        this.response = new Response(Person.getidcode(), collection.getPeople(), manager.getOut());
                     }
-                    try (Connection connection = DriverManager.getConnection(sq, information.getUser(), information.getPassword())) {
-                        try (Statement ps = connection.createStatement()){
-                            try(ResultSet rs = ps.executeQuery("SELECT id,name,haircolor,eyecolor,height,location,x,y,z,creationdate,birthday,username FROM people")){
-                                collection.clear();
-                                while(rs.next()){
-                                    int id = rs.getInt("id");
-                                    String name = rs.getString("name");
-                                    String haircolor = rs.getString("haircolor");
-                                    String eyecolor = rs.getString("eyecolor");
-                                    int height = rs.getInt("height");
-                                    String location = rs.getString("location");
-                                    int x = rs.getInt("x");
-                                    int y =(int) rs.getDouble("y");
-                                    int z = rs.getInt("z");
-                                    String creationdate = rs.getString("creationdate");
-                                    String birthday = rs.getString("birthday");
-                                    String host = rs.getString("username");
-                                    Person p = new Person(new Location(new Coordinates(x,y),location,z), HairColor.valueOf(haircolor),EyeColor.valueOf(eyecolor),name,height);
-                                    p.setHost(host);
-                                    p.resetid(id);
-                                    p.setBirthday(ZonedDateTime.parse(birthday));
-                                    p.setCreationDate(LocalDate.parse(creationdate));
-                                    Person.setIdcode(id);
-                                    collection.add(p);
-                                }
-                            }
-                        }
-                    }
-                    manager.setOut("success\n", false);
-                    this.response = new Response(Person.getidcode(),collection.getPeople(),manager.getOut());
-                    /*
-                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                    ObjectOutputStream outputStream = new ObjectOutputStream(byteArrayOutputStream);
-                    outputStream.writeObject(response);
-                    byte[] data = byteArrayOutputStream.toByteArray();
-                    DatagramPacket send = new DatagramPacket(data, data.length, packet.getSocketAddress());
-                    socket.send(send);
-                    outputStream.close();
-                    */
                 } catch (SQLException S){
-                    ports.remove(newport);
-                    if(information.isCreate()){
-                        manager.setOut("This user name is existed, reset new name\n",false);
-                    }else {
-                        manager.setOut("There are two possibilities:\n",false);
-                        manager.setOut("1.Your user name or password not proper\n", true);
-                        manager.setOut("2.Your account has no enough privilege\n",true);
-                        manager.setOut("Just try again or use another account\n",true);
-                    }
+                    S.printStackTrace();
+                    manager.setOut(S.getMessage(),false);
                     this.response = new Response(Person.getidcode(),collection.getPeople(),manager.getOut());
                     response.setException(true);
-                    /*
-                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                    ObjectOutputStream outputStream = new ObjectOutputStream(byteArrayOutputStream);
-                    outputStream.writeObject(response);
-                    byte [] data = byteArrayOutputStream.toByteArray();
-                    DatagramPacket send = new DatagramPacket(data,data.length,packet.getSocketAddress());
-                    socket.send(send);
-                    outputStream.close();
-                    */
                 }
+
             }
         }catch (ClassNotFoundException | IOException C){
             C.printStackTrace();
         }
+    }
+
+    public boolean UserExist(String username) throws SQLException{
+        boolean exist = false;
+        String sq = "jdbc:postgresql://" + information.getIp() + ":" + information.getPort() + "/" + information.getDatabase();
+        try (Connection connection = DriverManager.getConnection(sq,"s291007", "pgt813")) {
+            try (Statement ps = connection.createStatement()) {
+                try (ResultSet rs = ps.executeQuery("SELECT username,password FROM users")) {
+                    while(rs.next()) {
+                        String name = rs.getString("username");
+                        if (name.equals(username)) {
+                            exist = true;
+                        }
+                    }
+                }
+            }
+        }
+        return exist;
+    }
+
+    public boolean AccountExist(String username,String password) throws SQLException{
+        boolean exist = false;
+        String sq = "jdbc:postgresql://" + information.getIp() + ":" + information.getPort() + "/" + information.getDatabase();
+        try (Connection connection = DriverManager.getConnection(sq,"s291007", "pgt813")) {
+            try (Statement ps = connection.createStatement()) {
+                try (ResultSet rs = ps.executeQuery("SELECT username,password FROM users")) {
+                    while(rs.next()) {
+                        String name = rs.getString("username");
+                        String pass = rs.getString("password");
+                        if (name.equals(username)&&password.equals(pass)) {
+                            exist = true;
+                        }
+                    }
+                }
+            }
+        }
+        return exist;
+    }
+
+
+    public void AddUser(String name,String password) throws SQLException{
+        String sq = "jdbc:postgresql://" + information.getIp() + ":" + information.getPort() + "/" + information.getDatabase();
+        try (Connection connection = DriverManager.getConnection(sq,"s291007", "pgt813")) {
+            try (PreparedStatement ps = connection.prepareStatement("INSERT INTO users (username,password) values (?,?)")) {
+                ps.setObject(1,name);
+                ps.setObject(2,password);
+                ps.executeUpdate();
+            }
+        }
 
     }
+
 }

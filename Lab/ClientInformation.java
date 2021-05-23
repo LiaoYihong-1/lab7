@@ -17,8 +17,8 @@ public class ClientInformation implements Serializable {
         this.Database = "studs";
         this.user = user;
         this.password = password;
-        this.port = 5433;
-        this.ip = "localhost";
+        this.port = 5432;
+        this.ip = "pg";
         this.hash = setHash(password);
         this.create = choose;
     }

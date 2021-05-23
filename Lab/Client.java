@@ -19,7 +19,6 @@ public class Client {
         CollectionsofPerson collection = new CollectionsofPerson();
         collection.doInitialization();
         //initialize id with file, make sure the property of id
-
         //create channel
         DatagramChannel channel = DatagramChannel.open();
         channel.configureBlocking(false);
@@ -40,6 +39,7 @@ public class Client {
         if(choose.equalsIgnoreCase("create")){
             create = true;
         }
+        //InetSocketAddress inetSocketAddress = new InetSocketAddress("localhost",5555);
         InetSocketAddress inetSocketAddress = new InetSocketAddress(args[0],Integer.parseInt(args[1]));
         //choose database which is located in server
         System.out.print("Your username is:\n");
@@ -85,7 +85,6 @@ public class Client {
                         request = new MainRequest(clientInformation);
                         byte data [] = Serialization(request);
                         channel.send(ByteBuffer.wrap(data,0,data.length),inetSocketAddress);
-                        System.out.print(request.getCilentInformation().toString());
                         selectionKey.interestOps(SelectionKey.OP_READ);
                     }else {
                         selectionKey.interestOps(SelectionKey.OP_WRITE);
