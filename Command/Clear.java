@@ -29,7 +29,7 @@ public class Clear extends AbstractCommand {
     public void execute(CommandManager commandManager, MainRequest request, CollectionsofPerson collection) throws SQLException, ParaInapproException {
         ClientInformation clientInformation = request.getCilentInformation();
         String sq = "jdbc:postgresql://" + clientInformation.getIp() + ":" + clientInformation.getPort() + "/" + clientInformation.getDatabase();
-        try(Connection connection = DriverManager.getConnection(sq,request.getCilentInformation().getUser(),request.getCilentInformation().getPassword())) {
+        try(Connection connection = DriverManager.getConnection(sq,"s291007","pgt813")) {
             try (PreparedStatement ps = connection.prepareStatement("TRUNCATE TABLE people RESTART IDENTITY ")) {
                 ps.executeUpdate();
             }

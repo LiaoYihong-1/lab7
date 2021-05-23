@@ -41,7 +41,7 @@ public class RemoveGreater extends AbstractCommand {
             ClientInformation clientInformation = request.getCilentInformation();
             collection.getPeople().stream().filter(P -> P.getId()> in).forEach(set::add);
             String sq = "jdbc:postgresql://" + clientInformation.getIp() + ":" + clientInformation.getPort() + "/" + clientInformation.getDatabase();
-            try (Connection connection = DriverManager.getConnection(sq, clientInformation.getUser(), clientInformation.getPassword())) {
+            try (Connection connection = DriverManager.getConnection(sq, "s291007", "pgt813")) {
                 for(Person P: set) {
                     if(P.getHost().equals(request.getCilentInformation().getUser())) {
                         try (PreparedStatement ps = connection.prepareStatement("DELETE FROM people WHERE id=?")) {

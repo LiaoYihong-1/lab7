@@ -32,7 +32,7 @@ public class Add extends AbstractCommand {
         }
         ClientInformation clientInformation = request.getCilentInformation();
         String sq = "jdbc:postgresql://" + clientInformation.getIp() + ":" + clientInformation.getPort() + "/" + clientInformation.getDatabase();
-        try(Connection connection = DriverManager.getConnection(sq,clientInformation.getUser(),clientInformation.getPassword())){
+        try(Connection connection = DriverManager.getConnection(sq,"s291007","pgt813")){
             try(PreparedStatement ps = connection.prepareStatement("INSERT INTO people (name,haircolor,eyecolor,height,location,x,y,z,creationdate,birthday,username,password) values (?,?,?,?,?,?,?,?,?,?,?,?)")){
                 ps.setObject(1,person.getName());
                 ps.setObject(2,person.getHairColor().toString());

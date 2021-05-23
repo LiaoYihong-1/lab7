@@ -1,14 +1,9 @@
 package Command;
 
-import CSV.CSVWriter;
 import Collection.*;
 import Lab.ClientInformation;
 import Lab.MainRequest;
-
 import java.sql.*;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
@@ -220,38 +215,6 @@ public class CommandManager {
     }
 
     /**
-     * write static LinkedHashSet in format csv
-     * {@link CSVWriter#writetofile(LinkedHashSet, String)}
-     *
-     * @throws IOException
-     */
-    public void executeSave(ClientInformation path) throws IOException,ClassNotFoundException,SQLException{
-        /*LinkedHashSet<Person> linkedHashSet = new CollectionsofPerson().getPeople();
-        new CSVWriter().writetofile(linkedHashSet, path);*/
-        Class.forName("org.postgresql.Driver");
-        HashSet<Person> people = new CollectionsofPerson().getPeople();
-        try(Connection connection = DriverManager.getConnection("jdbc:postgresql://localhost:5433/studs","postgres","123456")){
-            try(PreparedStatement ps = connection.prepareStatement("INSERT INTO people (name,haircolor,eyecolor,height,location,x,y,z,creationdate,birthday,username) values (?,?,?,?,?,?,?,?,?,?,?)")){
-                for(Person P:people){
-                    ps.setObject(1,P.getName());
-                    ps.setObject(2,P.getHairColor().toString());
-                    ps.setObject(3,P.getEyeColor().toString());
-                    ps.setObject(4,P.getHeight());
-                    ps.setObject(5,P.getLocation().getName());
-                    ps.setObject(6,P.getLocation().getX());
-                    ps.setObject(7,P.getLocation().getY());
-                    ps.setObject(8,P.getLocation().getZ());
-                    ps.setObject(9,P.getLocation().getCreationdate().toString());
-                    ps.setObject(10,P.getBirthday().toString());
-                    ps.setObject(11,P.getHost());
-                    int n = ps.executeUpdate();
-                    System.out.print(n);
-                }
-            }
-        }
-    }
-
-    /**
      * print all the elements
      */
     public void executeShow(CollectionsofPerson collection) {
@@ -265,51 +228,56 @@ public class CommandManager {
     }
 
     public void executeUpdateID(String in, Person P, CollectionsofPerson collection, ClientInformation clientInformation, MainRequest request) throws ParaInapproException,SQLException{
-        Integer id = Integer.valueOf(in);
-        Person p;
-        String before = "";
-        String after = "";
-        boolean match = false;
-        Iterator<Person> iterator = collection.getPeople().iterator();
-        out :while (iterator.hasNext()) {
-            if (findByid(id,collection) == null) {
-                throw new ParaInapproException("no such a person with this id\n");
-            }
-            if ((p = iterator.next()).getId().equals(id)) {
-                if(p.getHost().equals(P.getHost())) {
-                    match = true;
-                    String sq = "jdbc:postgresql://" + clientInformation.getIp() + ":" + clientInformation.getPort() + "/" + clientInformation.getDatabase();
-                    try(Connection connection = DriverManager.getConnection(sq, clientInformation.getUser(), clientInformation.getPassword())){
-                        try(PreparedStatement ps = connection.prepareStatement("UPDATE people SET name=?,haircolor=?,eyecolor=?,height=?,location=?,x=?,y=?,z=?,creationdate=?,birthday=?,username=?,password=? WHERE id=?")){
-                            ps.setObject(1,P.getName());
-                            ps.setObject(2,P.getHairColor().toString());
-                            ps.setObject(3,P.getEyeColor().toString());
-                            ps.setObject(4,P.getHeight());
-                            ps.setObject(5,P.getLocation().getName());
-                            ps.setObject(6,P.getLocation().getX());
-                            ps.setObject(7,P.getLocation().getY());
-                            ps.setObject(8,P.getLocation().getZ());
-                            ps.setObject(9,P.getLocation().getCreationdate().toString());
-                            ps.setObject(10,P.getBirthday().toString());
-                            ps.setObject(11,P.getHost());
-                            ps.setObject(12,request.getCilentInformation().getHash());
-                            ps.setObject(13,p.getId());
-                            ps.executeUpdate();
-                        }
-                    }
-                    collection.remove(p);
-                    before = p.toString();
-                    Person insert = P;
-                    insert.changeId(id);
-                    collection.add(insert);
-                    after = insert.toString();
-                    setOut("You replace the\n" + before + "to\n" + after, false);
+        try {
+            Integer id = Integer.valueOf(in);
+            Person p;
+            String before = "";
+            String after = "";
+            boolean match = false;
+            Iterator<Person> iterator = collection.getPeople().iterator();
+            out:
+            while (iterator.hasNext()) {
+                if (findByid(id, collection) == null) {
+                    throw new ParaInapproException("no such a person with this id\n");
                 }
-                break out;
+                if ((p = iterator.next()).getId().equals(id)) {
+                    if (p.getHost().equals(P.getHost())) {
+                        match = true;
+                        String sq = "jdbc:postgresql://" + clientInformation.getIp() + ":" + clientInformation.getPort() + "/" + clientInformation.getDatabase();
+                        try (Connection connection = DriverManager.getConnection(sq, "s291007", "pgt813")) {
+                            try (PreparedStatement ps = connection.prepareStatement("UPDATE people SET name=?,haircolor=?,eyecolor=?,height=?,location=?,x=?,y=?,z=?,creationdate=?,birthday=?,username=?,password=? WHERE id=?")) {
+                                ps.setObject(1, P.getName());
+                                ps.setObject(2, P.getHairColor().toString());
+                                ps.setObject(3, P.getEyeColor().toString());
+                                ps.setObject(4, P.getHeight());
+                                ps.setObject(5, P.getLocation().getName());
+                                ps.setObject(6, P.getLocation().getX());
+                                ps.setObject(7, P.getLocation().getY());
+                                ps.setObject(8, P.getLocation().getZ());
+                                ps.setObject(9, P.getLocation().getCreationdate().toString());
+                                ps.setObject(10, P.getBirthday().toString());
+                                ps.setObject(11, P.getHost());
+                                ps.setObject(12, request.getCilentInformation().getHash());
+                                ps.setObject(13, p.getId());
+                                ps.executeUpdate();
+                            }
+                        }
+                        collection.remove(p);
+                        before = p.toString();
+                        Person insert = P;
+                        insert.changeId(id);
+                        collection.add(insert);
+                        after = insert.toString();
+                        setOut("You replace the\n" + before + "to\n" + after, false);
+                    }
+                    break out;
+                }
             }
-        }
-        if(!match){
-            setOut("You can't update a person that doesn't belong your account!\n",false);
+            if (!match) {
+                setOut("You can't update a person that doesn't belong your account!\n", false);
+            }
+        }catch (NullPointerException N){
+            setOut("No such a id\n",false);
         }
     }
 

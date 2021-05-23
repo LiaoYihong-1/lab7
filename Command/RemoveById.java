@@ -4,7 +4,6 @@ import Collection.CollectionsofPerson;
 import Collection.NullException;
 import Collection.Person;
 import Lab.ClientInformation;
-import Lab.CommandPackage;
 import Lab.MainRequest;
 
 import java.sql.Connection;
@@ -33,7 +32,7 @@ public class RemoveById extends AbstractCommand {
             if(find!=null&&find.getHost().equals(request.getCilentInformation().getUser())) {
                 ClientInformation clientInformation = request.getCilentInformation();
                 String sq = "jdbc:postgresql://" + clientInformation.getIp() + ":" + clientInformation.getPort() + "/" + clientInformation.getDatabase();
-                try(Connection connection = DriverManager.getConnection(sq, clientInformation.getUser(), clientInformation.getPassword())){
+                try(Connection connection = DriverManager.getConnection(sq, "s291007", "pgt813")){
                     try(PreparedStatement ps = connection.prepareStatement("DELETE FROM people WHERE id=?")){
                         ps.setObject(1,request.getCommandPackage().getPerson().getId());
                         ps.executeUpdate();

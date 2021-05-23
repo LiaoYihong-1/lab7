@@ -36,7 +36,7 @@ public class RemoveEyeColor extends AbstractCommand {
                 if (set != null) {
                     ClientInformation clientInformation = request.getCilentInformation();
                     String sq = "jdbc:postgresql://" + clientInformation.getIp() + ":" + clientInformation.getPort() + "/" + clientInformation.getDatabase();
-                    try (Connection connection = DriverManager.getConnection(sq, clientInformation.getUser(), clientInformation.getPassword())) {
+                    try (Connection connection = DriverManager.getConnection(sq, "s291007", "pgt813")) {
                         for (Person p : set) {
                             if(p.getHost().equals(request.getCilentInformation().getUser())) {
                                 try (PreparedStatement ps = connection.prepareStatement("DELETE FROM people WHERE id=?")) {
