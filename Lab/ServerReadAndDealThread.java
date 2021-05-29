@@ -69,7 +69,7 @@ public class ServerReadAndDealThread extends Thread{
             e.printStackTrace();
         }
 
-        //deal with commands
+        //
         try{
             request = (MainRequest) inputStream.readObject();
             if(request.getCommandPackage()!=null){
@@ -91,6 +91,7 @@ public class ServerReadAndDealThread extends Thread{
                                 ports.remove(ip);
                             }
                         }
+                        //System.exit(2);
                     } else {
                         try {
                             command.execute(manager, request, collection);
@@ -131,19 +132,20 @@ public class ServerReadAndDealThread extends Thread{
                     ports.add(newport);
                     information = request.getCilentInformation();
                     Class.forName("org.postgresql.Driver");
+                    //String sq = "jdbc:postgresql://" + "pg" + ":" + "5432" + "/" + "studs";
                     String sq = "jdbc:postgresql://" + information.getIp() + ":" + information.getPort() + "/" + information.getDatabase();
 
                     //register
                     if(request.getCilentInformation().isCreate()) {
-                        if(UserExist(information.getUser())){
+                        if(userExist(information.getUser())){
                             throw new SQLException("This username is existed\n");
                         }else {
-                            AddUser(information.getUser(), information.getHash());
+                            addUser(information.getUser(), information.getHash());
                         }
                     }
 
                     //login
-                    if(!AccountExist(information.getUser(),information.getHash())){
+                    if(!accountExist(information.getUser(),information.getHash())){
                         manager.setOut("Your username or password improper\n",false);
                         this.response = new Response(Person.getidcode(), collection.getPeople(), manager.getOut());
                         response.setException(true);
@@ -192,42 +194,33 @@ public class ServerReadAndDealThread extends Thread{
         }
     }
 
-    /*
-    check existence of user
-    */
-    public boolean UserExist(String username) throws SQLException{
-        boolean exist = false;
+    public boolean userExist(String username) throws SQLException{
+        String get = null;
         String sq = "jdbc:postgresql://" + information.getIp() + ":" + information.getPort() + "/" + information.getDatabase();
         try (Connection connection = DriverManager.getConnection(sq,"s291007", "pgt813")) {
             try (Statement ps = connection.createStatement()) {
-                try (ResultSet rs = ps.executeQuery("SELECT username,password FROM users")) {
-                    while(rs.next()) {
-                        String name = rs.getString("username");
-                        if (name.equals(username)) {
-                            exist = true;
-                        }
+                try (ResultSet rs = ps.executeQuery("SELECT username,password FROM users where user = " + "'" + username + "'")) {
+                    if(rs.next()) {
+                        get = rs.getString("username");
                     }
                 }
             }
         }
-        return exist;
+        if(get!=null) {
+            return true;
+        }else {
+            return false;
+        }
     }
-    
-    /*
-    Check existence of account.Only when username and password all exist, return true
-    */
-    public boolean AccountExist(String username,String password) throws SQLException{
+
+    public boolean accountExist(String username,String password) throws SQLException{
         boolean exist = false;
         String sq = "jdbc:postgresql://" + information.getIp() + ":" + information.getPort() + "/" + information.getDatabase();
         try (Connection connection = DriverManager.getConnection(sq,"s291007", "pgt813")) {
             try (Statement ps = connection.createStatement()) {
-                try (ResultSet rs = ps.executeQuery("SELECT username,password FROM users")) {
-                    while(rs.next()) {
-                        String name = rs.getString("username");
-                        String pass = rs.getString("password");
-                        if (name.equals(username)&&password.equals(pass)) {
-                            exist = true;
-                        }
+                try (ResultSet rs = ps.executeQuery("SELECT username,password FROM users where username = "+ "'" + username +"'" + " and password = "+ "'" + password + "'")) {
+                    if(rs.next()){
+                        exist = true;
                     }
                 }
             }
@@ -235,10 +228,8 @@ public class ServerReadAndDealThread extends Thread{
         return exist;
     }
 
-    /**
-    add a new user
-    */
-    public void AddUser(String name,String password) throws SQLException{
+
+    public void addUser(String name,String password) throws SQLException{
         String sq = "jdbc:postgresql://" + information.getIp() + ":" + information.getPort() + "/" + information.getDatabase();
         try (Connection connection = DriverManager.getConnection(sq,"s291007", "pgt813")) {
             try (PreparedStatement ps = connection.prepareStatement("INSERT INTO users (username,password) values (?,?)")) {
