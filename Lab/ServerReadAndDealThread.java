@@ -69,7 +69,7 @@ public class ServerReadAndDealThread extends Thread{
             e.printStackTrace();
         }
 
-        //
+        //deal with commands
         try{
             request = (MainRequest) inputStream.readObject();
             if(request.getCommandPackage()!=null){
@@ -91,7 +91,6 @@ public class ServerReadAndDealThread extends Thread{
                                 ports.remove(ip);
                             }
                         }
-                        //System.exit(2);
                     } else {
                         try {
                             command.execute(manager, request, collection);
@@ -132,7 +131,6 @@ public class ServerReadAndDealThread extends Thread{
                     ports.add(newport);
                     information = request.getCilentInformation();
                     Class.forName("org.postgresql.Driver");
-                    //String sq = "jdbc:postgresql://" + "pg" + ":" + "5432" + "/" + "studs";
                     String sq = "jdbc:postgresql://" + information.getIp() + ":" + information.getPort() + "/" + information.getDatabase();
 
                     //register
@@ -194,6 +192,9 @@ public class ServerReadAndDealThread extends Thread{
         }
     }
 
+    /*
+    check existence of user
+    */
     public boolean UserExist(String username) throws SQLException{
         boolean exist = false;
         String sq = "jdbc:postgresql://" + information.getIp() + ":" + information.getPort() + "/" + information.getDatabase();
@@ -211,7 +212,10 @@ public class ServerReadAndDealThread extends Thread{
         }
         return exist;
     }
-
+    
+    /*
+    Check existence of account.Only when username and password all exist, return true
+    */
     public boolean AccountExist(String username,String password) throws SQLException{
         boolean exist = false;
         String sq = "jdbc:postgresql://" + information.getIp() + ":" + information.getPort() + "/" + information.getDatabase();
@@ -231,7 +235,9 @@ public class ServerReadAndDealThread extends Thread{
         return exist;
     }
 
-
+    /**
+    add a new user
+    */
     public void AddUser(String name,String password) throws SQLException{
         String sq = "jdbc:postgresql://" + information.getIp() + ":" + information.getPort() + "/" + information.getDatabase();
         try (Connection connection = DriverManager.getConnection(sq,"s291007", "pgt813")) {
