@@ -199,7 +199,7 @@ public class ServerReadAndDealThread extends Thread{
         String sq = "jdbc:postgresql://" + information.getIp() + ":" + information.getPort() + "/" + information.getDatabase();
         try (Connection connection = DriverManager.getConnection(sq,"s291007", "pgt813")) {
             try (Statement ps = connection.createStatement()) {
-                try (ResultSet rs = ps.executeQuery("SELECT username,password FROM users where user = " + "'" + username + "'")) {
+                try (ResultSet rs = ps.executeQuery("SELECT username,password FROM users WHERE user = " + "'" + username + "'")) {
                     if(rs.next()) {
                         get = rs.getString("username");
                     }
@@ -218,7 +218,7 @@ public class ServerReadAndDealThread extends Thread{
         String sq = "jdbc:postgresql://" + information.getIp() + ":" + information.getPort() + "/" + information.getDatabase();
         try (Connection connection = DriverManager.getConnection(sq,"s291007", "pgt813")) {
             try (Statement ps = connection.createStatement()) {
-                try (ResultSet rs = ps.executeQuery("SELECT username,password FROM users where username = "+ "'" + username +"'" + " and password = "+ "'" + password + "'")) {
+                try (ResultSet rs = ps.executeQuery("SELECT username,password FROM users WHERE username = "+ "'" + username +"'" + " and password = "+ "'" + password + "'")) {
                     if(rs.next()){
                         exist = true;
                     }
