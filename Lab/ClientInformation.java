@@ -31,10 +31,6 @@ public class ClientInformation implements Serializable {
         return port;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
     public String getDatabase() {
         return Database;
     }
